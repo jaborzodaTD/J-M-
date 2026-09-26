@@ -1,0 +1,1589 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J-M-TRADERS — Trading Academy & Terminal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            900: '#070a10',
+                            800: '#0f172a',
+                            700: '#1e293b',
+                            600: '#334155'
+                        },
+                        trade: {
+                            green: '#10b981',
+                            greenHover: '#059669',
+                            red: '#ef4444',
+                            redHover: '#dc2626',
+                            accent: '#3b82f6',
+                            gold: '#f59e0b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        .glass-panel { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .btn-glow-green:hover { box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+        .btn-glow-red:hover { box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
+        canvas { touch-action: none; }
+    </style>
+</head>
+<body class="bg-dark-900 text-slate-100 h-full flex flex-col select-none overflow-x-hidden">
+
+    <!-- TOP HEADER -->
+    <header class="h-16 border-b border-slate-800 bg-dark-800/90 backdrop-blur px-4 flex items-center justify-between z-30 sticky top-0">
+        <!-- Brand Logo & Founders -->
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('terminal')">
+            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-800 flex items-center justify-center font-black text-white text-xl tracking-wider shadow-lg shadow-blue-900/30">
+                JM
+            </div>
+            <div>
+                <div class="flex items-center space-x-2">
+                    <span class="font-extrabold text-lg tracking-wider bg-gradient-to-r from-white via-slate-200 to-blue-400 bg-clip-text text-transparent">J-M-TRADERS</span>
+                    <span class="text-[10px] bg-blue-500/20 text-blue-400 font-semibold px-1.5 py-0.5 rounded border border-blue-500/30">ACADEMY</span>
+                </div>
+                <div class="text-[10px] text-slate-400 tracking-tight flex items-center space-x-1">
+                    <span>JABORZODA</span>
+                    <span class="text-blue-500">|</span>
+                    <span>MUZAFARZODA</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Realtime Account Metrics Header Bar -->
+        <div class="hidden lg:flex items-center space-x-6 text-xs bg-dark-900/80 px-4 py-2 rounded-xl border border-slate-800">
+            <div>
+                <span class="text-slate-400 block text-[10px]" data-i18n="balance">Баланс</span>
+                <span id="hdr-balance" class="font-bold text-slate-100">$10,000.00</span>
+            </div>
+            <div class="h-6 w-px bg-slate-800"></div>
+            <div>
+                <span class="text-slate-400 block text-[10px]" data-i18n="equity">Equity</span>
+                <span id="hdr-equity" class="font-bold text-slate-100">$10,000.00</span>
+            </div>
+            <div class="h-6 w-px bg-slate-800"></div>
+            <div>
+                <span class="text-slate-400 block text-[10px]" data-i18n="unrealized_pnl">Unrealized P/L</span>
+                <span id="hdr-pnl" class="font-bold text-emerald-400">$0.00</span>
+            </div>
+            <div class="h-6 w-px bg-slate-800"></div>
+            <div>
+                <span class="text-slate-400 block text-[10px]" data-i18n="free_margin">Свободная маржа</span>
+                <span id="hdr-free-margin" class="font-bold text-slate-100">$10,000.00</span>
+            </div>
+        </div>
+
+        <!-- Controls: Demo Badge, Level Badge & i18n Switcher -->
+        <div class="flex items-center space-x-3">
+            <div class="hidden md:flex items-center space-x-2 bg-amber-500/10 border border-amber-500/30 text-amber-400 px-2.5 py-1 rounded-lg text-xs font-medium">
+                <i class="fa-solid fa-flask text-amber-400 text-xs"></i>
+                <span data-i18n="demo_account">ДЕМО-СЧЕТ</span>
+            </div>
+
+            <!-- User Level Badge -->
+            <div class="flex items-center space-x-2 bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700 text-xs">
+                <i class="fa-solid fa-trophy text-amber-400"></i>
+                <span id="user-level-badge" class="font-bold text-slate-200">Lvl 1</span>
+                <span id="user-xp-badge" class="text-[10px] text-blue-400 font-mono">0 XP</span>
+            </div>
+
+            <!-- Language Switcher Switcher -->
+            <div class="flex items-center bg-slate-900 p-0.5 rounded-lg border border-slate-800 text-xs font-semibold">
+                <button id="lang-ru" onclick="setLanguage('ru')" class="px-2.5 py-1 rounded-md transition-all text-slate-300">🇷🇺 RU</button>
+                <button id="lang-tj" onclick="setLanguage('tj')" class="px-2.5 py-1 rounded-md transition-all text-slate-300">🇹🇯 TJ</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN WRAPPER -->
+    <div class="flex-1 flex overflow-hidden">
+
+        <!-- DESKTOP SIDEBAR NAVIGATION -->
+        <aside class="hidden md:flex flex-col w-64 border-r border-slate-800 bg-dark-800/60 p-3 justify-between">
+            <nav class="space-y-1">
+                <button onclick="switchTab('terminal')" id="nav-btn-terminal" class="nav-link w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all bg-blue-600/20 text-blue-400 border border-blue-500/30">
+                    <i class="fa-solid fa-chart-line w-5"></i>
+                    <span data-i18n="nav_trade">Торговля</span>
+                </button>
+                <button onclick="switchTab('markets')" id="nav-btn-markets" class="nav-link w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all">
+                    <i class="fa-solid fa-globe w-5"></i>
+                    <span data-i18n="nav_markets">Рынки</span>
+                </button>
+                <button onclick="switchTab('risk')" id="nav-btn-risk" class="nav-link w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all">
+                    <i class="fa-solid fa-calculator w-5"></i>
+                    <span data-i18n="nav_risk">Риск-менеджмент</span>
+                </button>
+                <button onclick="switchTab('academy')" id="nav-btn-academy" class="nav-link w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all">
+                    <i class="fa-solid fa-graduation-cap w-5"></i>
+                    <span data-i18n="nav_academy">Академия</span>
+                </button>
+                <button onclick="switchTab('journal')" id="nav-btn-journal" class="nav-link w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all">
+                    <i class="fa-solid fa-book-bookmark w-5"></i>
+                    <span data-i18n="nav_journal">Журнал</span>
+                </button>
+                <button onclick="switchTab('simulator')" id="nav-btn-simulator" class="nav-link w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all">
+                    <i class="fa-solid fa-gamepad w-5"></i>
+                    <span data-i18n="nav_simulator">Симулятор</span>
+                </button>
+                <button onclick="switchTab('aicoach')" id="nav-btn-aicoach" class="nav-link w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all">
+                    <i class="fa-solid fa-robot w-5"></i>
+                    <span data-i18n="nav_aicoach">AI Коуч</span>
+                </button>
+                <button onclick="switchTab('profile')" id="nav-btn-profile" class="nav-link w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all">
+                    <i class="fa-solid fa-user-gear w-5"></i>
+                    <span data-i18n="nav_profile">Профиль</span>
+                </button>
+            </nav>
+
+            <!-- Bottom Disclaimer Box -->
+            <div class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 text-[11px] text-slate-400 space-y-2">
+                <div class="flex items-center text-amber-400 font-semibold space-x-1">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span data-i18n="demo_account">ДЕМО-СЧЕТ</span>
+                </div>
+                <p data-i18n="virtual_funds_warning" class="leading-tight text-slate-400">
+                    Виртуальные средства. Торговля на реальные деньги отключена.
+                </p>
+                <div class="pt-2 border-t border-slate-800 text-[10px] text-slate-400 flex justify-between">
+                    <span>© 2026 J-M-TRADERS</span>
+                    <span class="text-blue-400 font-medium">v2.5 Pro</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CONTENT VIEWS AREA -->
+        <main class="flex-1 flex flex-col overflow-y-auto bg-dark-900 relative">
+
+            <!-- TAB 1: TRADING TERMINAL MAIN VIEW -->
+            <div id="view-terminal" class="tab-view flex-1 flex flex-col lg:flex-row overflow-hidden">
+                <!-- Left/Main Chart & Positions Grid -->
+                <div class="flex-1 flex flex-col border-r border-slate-800 overflow-hidden">
+                    
+                    <!-- Chart Control Bar -->
+                    <div class="h-12 border-b border-slate-800 bg-dark-800/40 px-3 flex items-center justify-between overflow-x-auto gap-2">
+                        <!-- Symbol Selector Dropdown -->
+                        <div class="flex items-center space-x-3">
+                            <select id="symbol-select" onchange="changeSymbol(this.value)" class="bg-dark-900 text-slate-100 font-bold border border-slate-700 rounded-lg px-3 py-1 text-sm focus:outline-none focus:border-blue-500">
+                                <option value="EUR/USD">EUR/USD</option>
+                                <option value="GBP/USD">GBP/USD</option>
+                                <option value="USD/JPY">USD/JPY</option>
+                                <option value="USD/CAD">USD/CAD</option>
+                                <option value="AUD/USD">AUD/USD</option>
+                                <option value="USD/CHF">USD/CHF</option>
+                                <option value="NZD/USD">NZD/USD</option>
+                                <option value="XAU/USD">XAU/USD (Gold)</option>
+                                <option value="BTC/USD">BTC/USD (Bitcoin)</option>
+                                <option value="ETH/USD">ETH/USD (Ethereum)</option>
+                                <option value="NASDAQ">NASDAQ 100</option>
+                                <option value="S&P 500">S&P 500</option>
+                            </select>
+
+                            <div id="active-symbol-price" class="flex items-center space-x-2 text-sm font-mono">
+                                <span id="symbol-bid" class="font-bold text-emerald-400">1.08500</span>
+                                <span id="symbol-spread" class="text-[10px] text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded">0.3 pips</span>
+                            </div>
+                        </div>
+
+                        <!-- Timeframe Selectors -->
+                        <div class="flex items-center space-x-1 bg-slate-900 p-1 rounded-lg border border-slate-800 text-xs font-semibold">
+                            <button onclick="setTimeframe('1m')" class="tf-btn px-2 py-0.5 rounded text-slate-400 hover:text-white" data-tf="1m">1m</button>
+                            <button onclick="setTimeframe('5m')" class="tf-btn px-2 py-0.5 rounded bg-blue-600 text-white" data-tf="5m">5m</button>
+                            <button onclick="setTimeframe('15m')" class="tf-btn px-2 py-0.5 rounded text-slate-400 hover:text-white" data-tf="15m">15m</button>
+                            <button onclick="setTimeframe('1H')" class="tf-btn px-2 py-0.5 rounded text-slate-400 hover:text-white" data-tf="1H">1H</button>
+                            <button onclick="setTimeframe('4H')" class="tf-btn px-2 py-0.5 rounded text-slate-400 hover:text-white" data-tf="4H">4H</button>
+                            <button onclick="setTimeframe('1D')" class="tf-btn px-2 py-0.5 rounded text-slate-400 hover:text-white" data-tf="1D">1D</button>
+                        </div>
+
+                        <!-- Chart Indicator Toggles -->
+                        <div class="flex items-center space-x-2">
+                            <button id="toggle-sma" onclick="toggleIndicator('sma')" class="px-2 py-1 rounded bg-slate-800 text-slate-400 text-xs border border-slate-700 hover:text-white">SMA (20)</button>
+                            <button id="toggle-ema" onclick="toggleIndicator('ema')" class="px-2 py-1 rounded bg-slate-800 text-slate-400 text-xs border border-slate-700 hover:text-white">EMA (50)</button>
+                            <button id="toggle-rsi" onclick="toggleIndicator('rsi')" class="px-2 py-1 rounded bg-slate-800 text-slate-400 text-xs border border-slate-700 hover:text-white">RSI (14)</button>
+                        </div>
+                    </div>
+
+                    <!-- REALTIME CANVAS CANDLESTICK CHART -->
+                    <div class="flex-1 relative bg-dark-900 overflow-hidden min-h-[350px]" id="chart-container">
+                        <canvas id="candlestick-chart" class="w-full h-full block cursor-crosshair"></canvas>
+                        <!-- Chart Tooltip / Hover OHLC Info -->
+                        <div id="chart-ohlc-info" class="absolute top-3 left-3 bg-dark-800/90 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-mono space-x-3 pointer-events-none hidden">
+                            <span>O: <b id="ohlc-o" class="text-slate-200">-</b></span>
+                            <span>H: <b id="ohlc-h" class="text-emerald-400">-</b></span>
+                            <span>L: <b id="ohlc-l" class="text-rose-400">-</b></span>
+                            <span>C: <b id="ohlc-c" class="text-slate-200">-</b></span>
+                        </div>
+                    </div>
+
+                    <!-- POSITIONS & HISTORY TABBED PANELS -->
+                    <div class="h-56 border-t border-slate-800 flex flex-col bg-dark-800/30">
+                        <div class="flex items-center border-b border-slate-800 px-3 bg-dark-800/60 text-xs font-semibold">
+                            <button onclick="switchTerminalSubTab('positions')" id="tab-btn-positions" class="px-4 py-2.5 text-blue-400 border-b-2 border-blue-500 font-bold" data-i18n="nav_positions">
+                                Позиции
+                            </button>
+                            <button onclick="switchTerminalSubTab('history')" id="tab-btn-history" class="px-4 py-2.5 text-slate-400 hover:text-slate-200" data-i18n="nav_history">
+                                История
+                            </button>
+                        </div>
+
+                        <!-- Active Positions Table -->
+                        <div id="panel-positions" class="flex-1 overflow-auto p-2">
+                            <table class="w-full text-left text-xs font-mono">
+                                <thead>
+                                    <tr class="text-slate-400 border-b border-slate-800/60 pb-2">
+                                        <th class="p-2" data-i18n="asset">Актив</th>
+                                        <th class="p-2" data-i18n="side">Тип</th>
+                                        <th class="p-2" data-i18n="lot_size">Объем</th>
+                                        <th class="p-2" data-i18n="entry_price">Вход</th>
+                                        <th class="p-2" data-i18n="current_price">Текущая</th>
+                                        <th class="p-2" data-i18n="stop_loss">Stop Loss</th>
+                                        <th class="p-2" data-i18n="take_profit">Take Profit</th>
+                                        <th class="p-2" data-i18n="pnl">P/L ($)</th>
+                                        <th class="p-2 text-right">Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="positions-tbody">
+                                    <!-- Dynamic content -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Trade History Table -->
+                        <div id="panel-history" class="flex-1 overflow-auto p-2 hidden">
+                            <table class="w-full text-left text-xs font-mono">
+                                <thead>
+                                    <tr class="text-slate-400 border-b border-slate-800/60 pb-2">
+                                        <th class="p-2">Время</th>
+                                        <th class="p-2" data-i18n="asset">Актив</th>
+                                        <th class="p-2" data-i18n="side">Тип</th>
+                                        <th class="p-2" data-i18n="lot_size">Объем</th>
+                                        <th class="p-2" data-i18n="entry_price">Вход</th>
+                                        <th class="p-2">Выход</th>
+                                        <th class="p-2" data-i18n="pnl">P/L ($)</th>
+                                        <th class="p-2" data-i18n="reason">Причина</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="history-tbody">
+                                    <!-- Dynamic content -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Sidebar: Order Entry Panel -->
+                <div class="w-full lg:w-80 bg-dark-800/80 p-4 border-l border-slate-800 flex flex-col space-y-4">
+                    <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+                        <span class="font-bold text-sm text-slate-200" data-i18n="open_position">Открыть позицию</span>
+                        <span id="order-symbol-label" class="text-xs font-mono font-bold text-blue-400">EUR/USD</span>
+                    </div>
+
+                    <!-- Order Side Selection Buttons -->
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="btn-side-buy" onclick="setOrderSide('BUY')" class="py-2.5 rounded-xl font-bold text-sm bg-emerald-600 hover:bg-emerald-500 text-white transition shadow-lg shadow-emerald-900/20 btn-glow-green border border-emerald-400/30">
+                            <i class="fa-solid fa-circle-arrow-up mr-1"></i> <span data-i18n="buy">BUY</span>
+                        </button>
+                        <button id="btn-side-sell" onclick="setOrderSide('SELL')" class="py-2.5 rounded-xl font-bold text-sm bg-slate-800 hover:bg-rose-600 text-slate-300 hover:text-white transition border border-slate-700">
+                            <i class="fa-solid fa-circle-arrow-down mr-1"></i> <span data-i18n="sell">SELL</span>
+                        </button>
+                    </div>
+
+                    <!-- Volume / Lots Input -->
+                    <div class="space-y-1">
+                        <label class="text-xs text-slate-400 flex justify-between">
+                            <span data-i18n="lot_size">Объем (Лоты)</span>
+                            <span class="text-slate-400 font-mono">1 Lot = 100,000</span>
+                        </label>
+                        <div class="relative">
+                            <input type="number" id="order-volume" step="0.01" min="0.01" max="100" value="0.10" class="w-full bg-dark-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono text-white focus:outline-none focus:border-blue-500">
+                        </div>
+                    </div>
+
+                    <!-- Leverage Input -->
+                    <div class="space-y-1">
+                        <label class="text-xs text-slate-400" data-i18n="leverage">Кредитное плечо</label>
+                        <select id="order-leverage" class="w-full bg-dark-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono text-white focus:outline-none focus:border-blue-500">
+                            <option value="1">1:1</option>
+                            <option value="10">1:10</option>
+                            <option value="50">1:50</option>
+                            <option value="100" selected>1:100</option>
+                            <option value="200">1:200</option>
+                            <option value="500">1:500</option>
+                        </select>
+                    </div>
+
+                    <!-- Stop Loss & Take Profit Inputs -->
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="space-y-1">
+                            <label class="text-xs text-slate-400" data-i18n="stop_loss">Stop Loss</label>
+                            <input type="number" id="order-sl" step="0.0001" placeholder="Optional" class="w-full bg-dark-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-rose-500">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-xs text-slate-400" data-i18n="take_profit">Take Profit</label>
+                            <input type="number" id="order-tp" step="0.0001" placeholder="Optional" class="w-full bg-dark-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-emerald-500">
+                        </div>
+                    </div>
+
+                    <!-- Calculation Preview Box -->
+                    <div class="bg-dark-900/90 p-3 rounded-xl border border-slate-800 text-xs space-y-1.5 font-mono">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400" data-i18n="used_margin">Маржа:</span>
+                            <span id="order-calc-margin" class="text-slate-200 font-bold">$108.50</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400" data-i18n="risk_amount">Риск:</span>
+                            <span id="order-calc-risk" class="text-rose-400">$0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Submit Order Button -->
+                    <button onclick="executeOrder()" id="btn-submit-order" class="w-full py-3 rounded-xl font-bold text-sm bg-emerald-600 hover:bg-emerald-500 text-white transition shadow-lg shadow-emerald-900/30 btn-glow-green">
+                        <span data-i18n="open_position">Открыть позицию</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- TAB 2: MARKETS OVERVIEW -->
+            <div id="view-markets" class="tab-view flex-1 p-6 hidden">
+                <div class="max-w-6xl mx-auto space-y-6">
+                    <h2 class="text-2xl font-bold" data-i18n="nav_markets">Обзор Рынков</h2>
+                    <div class="glass-panel rounded-2xl overflow-hidden">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-800 bg-slate-800/30 text-xs text-slate-400 font-semibold uppercase">
+                                    <th class="p-4" data-i18n="asset">Инструмент</th>
+                                    <th class="p-4">Bid</th>
+                                    <th class="p-4">Ask</th>
+                                    <th class="p-4">Спред</th>
+                                    <th class="p-4">24h Изменение</th>
+                                    <th class="p-4 text-right">Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="markets-table-body" class="divide-y divide-slate-800 text-sm font-mono">
+                                <!-- Dynamic Markets Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: RISK MANAGER CALCULATOR -->
+            <div id="view-risk" class="tab-view flex-1 p-6 hidden">
+                <div class="max-w-4xl mx-auto space-y-6">
+                    <div class="border-b border-slate-800 pb-4">
+                        <h2 class="text-2xl font-bold" data-i18n="calculator">Калькулятор Риск-Менеджмента</h2>
+                        <p class="text-xs text-slate-400 mt-1">Рассчитайте идеальный размер позиции перед входом в сделку.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Controls -->
+                        <div class="glass-panel p-5 rounded-2xl space-y-4">
+                            <div class="space-y-1">
+                                <label class="text-xs text-slate-400" data-i18n="balance">Баланс Счета ($)</label>
+                                <input type="number" id="calc-balance" value="10000" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white font-mono">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-xs text-slate-400" data-i18n="risk_percent">Допустимый Риск на Сделку (%)</label>
+                                <input type="number" id="calc-risk-pct" value="1.0" step="0.1" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white font-mono">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-xs text-slate-400" data-i18n="entry_price">Цена Входа</label>
+                                <input type="number" id="calc-entry" value="1.0850" step="0.0001" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white font-mono">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-xs text-slate-400" data-i18n="stop_loss">Уровень Stop Loss</label>
+                                <input type="number" id="calc-stop" value="1.0820" step="0.0001" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white font-mono">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-xs text-slate-400" data-i18n="take_profit">Уровень Take Profit</label>
+                                <input type="number" id="calc-tp" value="1.0910" step="0.0001" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white font-mono">
+                            </div>
+                            <button onclick="calculateRiskTool()" class="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold text-white transition" data-i18n="calculate">Рассчитать</button>
+                        </div>
+
+                        <!-- Results Card -->
+                        <div class="glass-panel p-5 rounded-2xl flex flex-col justify-between space-y-4">
+                            <h3 class="font-bold text-slate-200 text-sm border-b border-slate-800 pb-2">Результаты Расчета</h3>
+                            
+                            <div class="space-y-3 font-mono">
+                                <div class="bg-dark-900/80 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+                                    <span class="text-xs text-slate-400" data-i18n="risk_amount">Максимальный Риск ($):</span>
+                                    <span id="res-risk-amt" class="text-lg font-bold text-rose-400">$100.00</span>
+                                </div>
+
+                                <div class="bg-dark-900/80 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+                                    <span class="text-xs text-slate-400" data-i18n="lot_size">Рекомендуемый Объем (Лоты):</span>
+                                    <span id="res-lot-size" class="text-lg font-bold text-emerald-400">0.33 Lot</span>
+                                </div>
+
+                                <div class="bg-dark-900/80 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+                                    <span class="text-xs text-slate-400" data-i18n="potential_profit">Потенциальная Прибыль ($):</span>
+                                    <span id="res-reward-amt" class="text-lg font-bold text-emerald-400">$200.00</span>
+                                </div>
+
+                                <div class="bg-dark-900/80 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+                                    <span class="text-xs text-slate-400" data-i18n="risk_reward">Соотношение Risk / Reward:</span>
+                                    <span id="res-rr-ratio" class="text-lg font-bold text-blue-400">1 : 2.0</span>
+                                </div>
+                            </div>
+
+                            <div class="p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl text-xs text-blue-300">
+                                <i class="fa-solid fa-lightbulb mr-1"></i> Правило профессионалов: Никогда не рискуйте более 1-2% от капитала в одной сделке.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: TRADING ACADEMY & QUIZZES -->
+            <div id="view-academy" class="tab-view flex-1 p-6 hidden">
+                <div class="max-w-5xl mx-auto space-y-6">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                        <div>
+                            <h2 class="text-2xl font-bold" data-i18n="academy_title">Академия Трейдинга</h2>
+                            <p class="text-xs text-slate-400 mt-1">Освойте профессию трейдера от основ до управления рисками.</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs text-slate-400">Текущий Прогресс</div>
+                            <div class="text-lg font-bold text-emerald-400 font-mono" id="academy-progress-pct">0%</div>
+                        </div>
+                    </div>
+
+                    <!-- Lesson Modules Grid -->
+                    <div id="academy-modules" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Dynamic Lessons Rendered Here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: TRADING JOURNAL -->
+            <div id="view-journal" class="tab-view flex-1 p-6 hidden">
+                <div class="max-w-5xl mx-auto space-y-6">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                        <h2 class="text-2xl font-bold" data-i18n="journal_title">Торговый Журнал</h2>
+                        <button onclick="openJournalModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition flex items-center space-x-2">
+                            <i class="fa-solid fa-plus"></i>
+                            <span data-i18n="add_journal_entry">Добавить запись</span>
+                        </button>
+                    </div>
+
+                    <div id="journal-list" class="space-y-4">
+                        <!-- Journal Entries -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 6: MARKET SIMULATOR -->
+            <div id="view-simulator" class="tab-view flex-1 p-6 hidden">
+                <div class="max-w-4xl mx-auto space-y-6">
+                    <div class="border-b border-slate-800 pb-4">
+                        <h2 class="text-2xl font-bold" data-i18n="simulator_title">Симулятор Исторических Сценариев</h2>
+                        <p class="text-xs text-slate-400 mt-1">Проверьте свои навыки на подготовленных рыночных паттернах.</p>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-2xl space-y-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-xs text-blue-400 font-bold uppercase tracking-wider">Сценарий #1</span>
+                                <h3 class="text-xl font-bold text-white">Пробой уровня сопротивления (EUR/USD)</h3>
+                            </div>
+                            <button onclick="nextSimStep()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs" data-i18n="next_step">
+                                Следующий шаг
+                            </button>
+                        </div>
+
+                        <div class="h-64 bg-dark-900 rounded-xl border border-slate-800 flex items-center justify-center relative overflow-hidden" id="sim-chart-area">
+                            <canvas id="sim-canvas" class="w-full h-full"></canvas>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-3">
+                            <button onclick="makeSimTrade('BUY')" class="py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-sm" data-i18n="buy">
+                                BUY
+                            </button>
+                            <button onclick="makeSimTrade('SELL')" class="py-3 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl text-sm" data-i18n="sell">
+                                SELL
+                            </button>
+                            <button onclick="makeSimTrade('HOLD')" class="py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-xl text-sm">
+                                ЖДАТЬ
+                            </button>
+                        </div>
+
+                        <div id="sim-feedback" class="p-4 bg-slate-800/60 rounded-xl text-xs text-slate-300 font-mono hidden">
+                            <!-- Feedback output -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 7: AI TRADING COACH -->
+            <div id="view-aicoach" class="tab-view flex-1 p-6 hidden">
+                <div class="max-w-3xl mx-auto space-y-6 flex flex-col h-full">
+                    <div class="border-b border-slate-800 pb-4">
+                        <h2 class="text-2xl font-bold flex items-center space-x-2">
+                            <i class="fa-solid fa-robot text-blue-500"></i>
+                            <span data-i18n="ai_coach_title">AI Торговый Наставник</span>
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-1" data-i18n="ai_coach_desc">Задайте вопрос о рынках, техническом анализе или психологии</p>
+                    </div>
+
+                    <div id="ai-chat-box" class="flex-1 bg-dark-800/50 border border-slate-800 rounded-2xl p-4 overflow-y-auto space-y-3 min-h-[350px]">
+                        <div class="bg-blue-600/10 border border-blue-500/20 p-3 rounded-2xl text-xs text-blue-200 max-w-md">
+                            Здравствуйте! Я ваш интерактивный преподаватель по трейдингу J-M-TRADERS. Чем я могу помочь вам сегодня?
+                        </div>
+                    </div>
+
+                    <div class="flex space-x-2">
+                        <input type="text" id="ai-input" placeholder="Например: Что такое уровня поддержки?" class="flex-1 bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-blue-500">
+                        <button onclick="sendAiMessage()" class="px-5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs transition" data-i18n="ask_ai">
+                            Спросить
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 8: PROFILE & ACHIEVEMENTS -->
+            <div id="view-profile" class="tab-view flex-1 p-6 hidden">
+                <div class="max-w-4xl mx-auto space-y-6">
+                    <div class="glass-panel p-6 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-2xl font-black text-white shadow-xl shadow-blue-900/40">
+                                JM
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-extrabold text-white">Трейдер J-M-TRADERS</h2>
+                                <div class="text-xs text-slate-400 mt-0.5">Основатели платформы: <b class="text-blue-400">JABORZODA | MUZAFARZODA</b></div>
+                            </div>
+                        </div>
+
+                        <button onclick="resetDemoAccount()" class="px-4 py-2.5 bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 rounded-xl text-xs font-bold transition flex items-center space-x-2">
+                            <i class="fa-solid fa-rotate-right"></i>
+                            <span data-i18n="reset_demo">Сбросить демо-счет</span>
+                        </button>
+                    </div>
+
+                    <!-- Lifetime Stats Grid -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="glass-panel p-4 rounded-xl text-center">
+                            <span class="text-xs text-slate-400 block" data-i18n="total_trades">Всего сделок</span>
+                            <span id="prof-stat-trades" class="text-2xl font-bold font-mono text-white">0</span>
+                        </div>
+                        <div class="glass-panel p-4 rounded-xl text-center">
+                            <span class="text-xs text-slate-400 block" data-i18n="win_rate">Винрейт</span>
+                            <span id="prof-stat-winrate" class="text-2xl font-bold font-mono text-emerald-400">0%</span>
+                        </div>
+                        <div class="glass-panel p-4 rounded-xl text-center">
+                            <span class="text-xs text-slate-400 block" data-i18n="realized_pnl">Реализованный P/L</span>
+                            <span id="prof-stat-pnl" class="text-2xl font-bold font-mono text-slate-200">$0.00</span>
+                        </div>
+                        <div class="glass-panel p-4 rounded-xl text-center">
+                            <span class="text-xs text-slate-400 block" data-i18n="xp_points">XP Очки</span>
+                            <span id="prof-stat-xp" class="text-2xl font-bold font-mono text-blue-400">0 XP</span>
+                        </div>
+                    </div>
+
+                    <!-- Achievements Section -->
+                    <div class="glass-panel p-6 rounded-2xl space-y-4">
+                        <h3 class="font-bold text-slate-200 text-base" data-i18n="achievements">Достижения</h3>
+                        <div id="achievements-grid" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <!-- Dynamic Achievements Rendered -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- MOBILE BOTTOM NAVIGATION -->
+    <nav class="md:hidden border-t border-slate-800 bg-dark-800/95 backdrop-blur flex justify-around p-2 z-30">
+        <button onclick="switchTab('terminal')" class="flex flex-col items-center text-xs text-blue-400">
+            <i class="fa-solid fa-chart-line text-base"></i>
+            <span class="text-[10px] mt-1" data-i18n="nav_trade">Торговля</span>
+        </button>
+        <button onclick="switchTab('markets')" class="flex flex-col items-center text-xs text-slate-400">
+            <i class="fa-solid fa-globe text-base"></i>
+            <span class="text-[10px] mt-1" data-i18n="nav_markets">Рынки</span>
+        </button>
+        <button onclick="switchTab('academy')" class="flex flex-col items-center text-xs text-slate-400">
+            <i class="fa-solid fa-graduation-cap text-base"></i>
+            <span class="text-[10px] mt-1" data-i18n="nav_academy">Академия</span>
+        </button>
+        <button onclick="switchTab('journal')" class="flex flex-col items-center text-xs text-slate-400">
+            <i class="fa-solid fa-book-bookmark text-base"></i>
+            <span class="text-[10px] mt-1" data-i18n="nav_journal">Журнал</span>
+        </button>
+        <button onclick="switchTab('profile')" class="flex flex-col items-center text-xs text-slate-400">
+            <i class="fa-solid fa-user-gear text-base"></i>
+            <span class="text-[10px] mt-1" data-i18n="nav_profile">Профиль</span>
+        </button>
+    </nav>
+
+    <!-- TOAST NOTIFICATIONS HOLDER -->
+    <div id="toast-container" class="fixed bottom-16 right-4 md:bottom-6 md:right-6 space-y-2 z-50 pointer-events-none"></div>
+
+    <!-- JOURNAL MODAL -->
+    <div id="journal-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-md rounded-2xl p-6 space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                <h3 class="font-bold text-white text-base" data-i18n="add_journal_entry">Добавить запись в журнал</h3>
+                <button onclick="closeJournalModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-3">
+                <input type="text" id="j-symbol" placeholder="Инструмент (напр. EUR/USD)" class="w-full bg-dark-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white">
+                <select id="j-emotion" class="w-full bg-dark-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white">
+                    <option value="Спокойствие">😌 Спокойствие / Дисциплина</option>
+                    <option value="FOMO">😱 FOMO / Страх упустить</option>
+                    <option value="Азарт">🔥 Азарт / Желание отыграться</option>
+                    <option value="Уверенность">😎 Уверенность</option>
+                </select>
+                <textarea id="j-notes" rows="4" placeholder="Заметки по сделке и причины входа..." class="w-full bg-dark-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white"></textarea>
+            </div>
+            <button onclick="saveJournalEntry()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 rounded-xl text-white font-bold text-xs">Сохранить</button>
+        </div>
+    </div>
+
+    <!-- MAIN JAVASCRIPT APPLICATION LOGIC -->
+    <script>
+        /* ==========================================================================
+           1. INTERNATIONALIZATION (i18n) DICTIONARY (100% COVERAGE FOR RU & TJ)
+           ========================================================================== */
+        const translations = {
+            ru: {
+                app_name: "J-M-TRADERS",
+                app_subtitle: "TRADING ACADEMY",
+                founders_label: "Основатели: JABORZODA | MUZAFARZODA",
+                demo_account: "ДЕМО-СЧЕТ",
+                virtual_funds_warning: "Виртуальные средства. Торговля на реальные деньги отключена.",
+                nav_home: "Главная",
+                nav_markets: "Рынки",
+                nav_trade: "Торговля",
+                nav_positions: "Позиции",
+                nav_history: "История",
+                nav_academy: "Академия",
+                nav_journal: "Журнал",
+                nav_risk: "Риск-менеджмент",
+                nav_simulator: "Симулятор",
+                nav_aicoach: "AI Коуч",
+                nav_profile: "Профиль",
+                balance: "Баланс",
+                equity: "Средства (Equity)",
+                used_margin: "Занятая маржа",
+                free_margin: "Свободная маржа",
+                margin_level: "Уровень маржи",
+                unrealized_pnl: "Нереализованный P/L",
+                realized_pnl: "Реализованный P/L",
+                win_rate: "Винрейт",
+                total_trades: "Всего сделок",
+                buy: "Купить (BUY)",
+                sell: "Продать (SELL)",
+                asset: "Инструмент",
+                lot_size: "Объем (Лоты)",
+                leverage: "Кредитное плечо",
+                entry_price: "Цена входа",
+                current_price: "Текущая цена",
+                stop_loss: "Стоп-лосс (SL)",
+                take_profit: "Тейк-профит (TP)",
+                open_position: "Открыть позицию",
+                close_position: "Закрыть позицию",
+                close_all: "Закрыть все",
+                manual_close: "Ручное закрытие",
+                stop_loss_hit: "Сработал Stop Loss",
+                take_profit_hit: "Сработал Take Profit",
+                duration: "Длительность",
+                reason: "Причина",
+                side: "Тип",
+                pnl: "Прибыль/Убыток",
+                no_positions: "Нет открытых позиций",
+                no_history: "История сделок пуста",
+                risk_percent: "Риск %",
+                risk_amount: "Сумма риска",
+                potential_profit: "Потенц. прибыль",
+                risk_reward: "Риск / Награда",
+                calculator: "Калькулятор рисков",
+                calculate: "Рассчитать",
+                reset_demo: "Сбросить демо-счет",
+                reset_confirm: "Вы уверены, что хотите сбросить демо-счет до $10,000?",
+                academy_title: "Академия Трейдинга",
+                start_lesson: "Начать урок",
+                take_quiz: "Пройти тест",
+                xp_points: "XP Очки",
+                level: "Уровень",
+                achievements: "Достижения",
+                journal_title: "Торговый Журнал",
+                add_journal_entry: "Добавить запись в журнал",
+                emotion: "Эмоциональное состояние",
+                notes: "Заметки / Анализ",
+                simulator_title: "Симулятор рынка",
+                start_scenario: "Запустить сценарий",
+                next_step: "Следующий шаг",
+                ai_coach_title: "AI Торговый Наставник",
+                ai_coach_desc: "Задайте вопрос о рынках, техническом анализе или психологии",
+                ask_ai: "Спросить AI",
+                placeholder_ask: "Например: Что такое уровни поддержки и сопротивления?"
+            },
+            tj: {
+                app_name: "J-M-TRADERS",
+                app_subtitle: "TRADING ACADEMY",
+                founders_label: "Муассисон: JABORZODA | MUZAFARZODA",
+                demo_account: "СУРАТИ ДЕМО",
+                virtual_funds_warning: "Маблағҳои виртуали. Савдо бо пули ҳақиқӣ ғайриимкон аст.",
+                nav_home: "Асосӣ",
+                nav_markets: "Бозорҳо",
+                nav_trade: "Савдо",
+                nav_positions: "Мавқеъҳо",
+                nav_history: "Таърих",
+                nav_academy: "Академия",
+                nav_journal: "Рӯзнома",
+                nav_risk: "Идоракунии хавф",
+                nav_simulator: "Симулятор",
+                nav_aicoach: "Омӯзгори AI",
+                nav_profile: "Профил",
+                balance: "Баланс",
+                equity: "Сармоя (Equity)",
+                used_margin: "Маржаи истифодашуда",
+                free_margin: "Маржаи озод",
+                margin_level: "Сатҳи маржа",
+                unrealized_pnl: "Фоида/Зарари ҷорӣ",
+                realized_pnl: "Фоида/Зарари тасдиқшуда",
+                win_rate: "Фоизи ғалаба",
+                total_trades: "Ҳамагӣ савдоҳо",
+                buy: "Харидан (BUY)",
+                sell: "Фурӯхтан (SELL)",
+                asset: "Инструмент",
+                lot_size: "Ҳаҷм (Лотҳо)",
+                leverage: "Омили фишанг (Leverage)",
+                entry_price: "Нархи воридшавӣ",
+                current_price: "Нархи ҷорӣ",
+                stop_loss: "Stop Loss (SL)",
+                take_profit: "Take Profit (TP)",
+                open_position: "Кушодани мавқеъ",
+                close_position: "Пӯшидани мавқеъ",
+                close_all: "Пӯшидани ҳама",
+                manual_close: "Пӯшидани дастӣ",
+                stop_loss_hit: "Stop Loss иҷро шуд",
+                take_profit_hit: "Take Profit иҷро шуд",
+                duration: "Давомнокӣ",
+                reason: "Сабаб",
+                side: "Намуд",
+                pnl: "Фоида/Зарар",
+                no_positions: "Мавқеъҳои кушода мавҷуд нестанд",
+                no_history: "Таърихи савдо холӣ аст",
+                risk_percent: "Хавф %",
+                risk_amount: "Маблағи хавф",
+                potential_profit: "Фоидаи эҳтимолӣ",
+                risk_reward: "Хавф / Фоида",
+                calculator: "Калкулятори хавфҳо",
+                calculate: "Ҳисоб кардан",
+                reset_demo: "Бозсозии сурати демо",
+                reset_confirm: "Оё шумо мехоҳед сурати деморо то $10,000 бозсозӣ кунед?",
+                academy_title: "Академияи Савдо",
+                start_lesson: "Оғози дарс",
+                take_quiz: "Гузаштани тест",
+                xp_points: "Очкоҳои XP",
+                level: "Сатҳ",
+                achievements: "Дарёфтҳо",
+                journal_title: "Рӯзномаи савдо",
+                add_journal_entry: "Илова кардани қайд ба рӯзнома",
+                emotion: "Ҳолати эҳсосӣ",
+                notes: "Қайдҳо / Таҳлил",
+                simulator_title: "Симулятори бозор",
+                start_scenario: "Иҷрои сценария",
+                next_step: "Қадами оянда",
+                ai_coach_title: "Омӯзгори AI-и савдо",
+                ai_coach_desc: "Дар бораи бозорҳо, таҳлили техникӣ ё психология савол диҳед",
+                ask_ai: "Пурсидан аз AI",
+                placeholder_ask: "Масалан: Сатҳҳои дастгирӣ ва муқовимат чист?"
+            }
+        };
+
+        let currentLang = localStorage.getItem('jm_lang') || 'ru';
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('jm_lang', lang);
+            
+            // Highlight active lang btn
+            document.getElementById('lang-ru').className = lang === 'ru' ? 'px-2.5 py-1 rounded-md bg-blue-600 text-white shadow' : 'px-2.5 py-1 rounded-md text-slate-400 hover:text-white';
+            document.getElementById('lang-tj').className = lang === 'tj' ? 'px-2.5 py-1 rounded-md bg-blue-600 text-white shadow' : 'px-2.5 py-1 rounded-md text-slate-400 hover:text-white';
+
+            // Translate all elements with data-i18n
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+
+            showToast(lang === 'ru' ? 'Язык изменен на Русский' : 'Забон ба тоҷикӣ иваз карда шуд');
+            renderAcademy();
+            renderAchievements();
+        }
+
+        function t(key) {
+            return translations[currentLang][key] || key;
+        }
+
+        /* ==========================================================================
+           2. STATE & ENGINE INITIALIZATION
+           ========================================================================== */
+        const SYMBOLS_DATA = {
+            'EUR/USD': { basePrice: 1.08500, digits: 5, spread: 0.00012, contract: 100000 },
+            'GBP/USD': { basePrice: 1.27200, digits: 5, spread: 0.00015, contract: 100000 },
+            'USD/JPY': { basePrice: 155.400, digits: 3, spread: 0.015, contract: 100000 },
+            'USD/CAD': { basePrice: 1.36500, digits: 5, spread: 0.00018, contract: 100000 },
+            'AUD/USD': { basePrice: 0.65800, digits: 5, spread: 0.00014, contract: 100000 },
+            'USD/CHF': { basePrice: 0.89200, digits: 5, spread: 0.00016, contract: 100000 },
+            'NZD/USD': { basePrice: 0.61200, digits: 5, spread: 0.00017, contract: 100000 },
+            'XAU/USD': { basePrice: 2350.50, digits: 2, spread: 0.35, contract: 100 },
+            'BTC/USD': { basePrice: 67500.0, digits: 2, spread: 15.0, contract: 1 },
+            'ETH/USD': { basePrice: 3520.00, digits: 2, spread: 1.20, contract: 1 },
+            'NASDAQ':  { basePrice: 18650.0, digits: 2, spread: 1.50, contract: 10 },
+            'S&P 500': { basePrice: 5450.00, digits: 2, spread: 0.50, contract: 50 }
+        };
+
+        let state = {
+            balance: parseFloat(localStorage.getItem('jm_balance')) || 10000.00,
+            positions: JSON.parse(localStorage.getItem('jm_positions')) || [],
+            history: JSON.parse(localStorage.getItem('jm_history')) || [],
+            journal: JSON.parse(localStorage.getItem('jm_journal')) || [],
+            xp: parseInt(localStorage.getItem('jm_xp')) || 0,
+            selectedSymbol: 'EUR/USD',
+            timeframe: '5m',
+            orderSide: 'BUY',
+            indicators: { sma: false, ema: false, rsi: false }
+        };
+
+        let activeCandles = [];
+        let priceEngineInterval = null;
+
+        /* ==========================================================================
+           3. CANDLESTICK CHART ENGINE (HTML5 CANVAS RENDERER)
+           ========================================================================== */
+        function generateInitialCandles(symbol, count = 60) {
+            const base = SYMBOLS_DATA[symbol].basePrice;
+            let current = base;
+            let candles = [];
+            let now = Date.now() - count * 5 * 60 * 1000;
+
+            for (let i = 0; i < count; i++) {
+                let change = (Math.random() - 0.49) * (base * 0.0015);
+                let open = current;
+                let close = open + change;
+                let high = Math.max(open, close) + Math.random() * (base * 0.0008);
+                let low = Math.min(open, close) - Math.random() * (base * 0.0008);
+                let volume = Math.floor(Math.random() * 500) + 50;
+
+                candles.push({ time: now + i * 5 * 60 * 1000, open, high, low, close, volume });
+                current = close;
+            }
+            return candles;
+        }
+
+        function initChart() {
+            activeCandles = generateInitialCandles(state.selectedSymbol);
+            drawChart();
+        }
+
+        function drawChart() {
+            const canvas = document.getElementById('candlestick-chart');
+            if (!canvas) return;
+            const container = canvas.parentElement;
+            
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+
+            ctx.clearRect(0, 0, w, h);
+
+            if (activeCandles.length === 0) return;
+
+            // Compute Min/Max Price
+            let minP = Math.min(...activeCandles.map(c => c.low));
+            let maxP = Math.max(...activeCandles.map(c => c.high));
+            let padding = (maxP - minP) * 0.1 || 0.01;
+            minP -= padding;
+            maxP += padding;
+
+            const candleWidth = (w - 60) / activeCandles.length;
+
+            // Draw Background Grid
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 1;
+            for (let i = 1; i <= 5; i++) {
+                let y = (h / 6) * i;
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(w - 60, y);
+                ctx.stroke();
+
+                // Price label on right axis
+                let priceAtY = maxP - (y / h) * (maxP - minP);
+                ctx.fillStyle = '#64748b';
+                ctx.font = '10px monospace';
+                ctx.fillText(priceAtY.toFixed(SYMBOLS_DATA[state.selectedSymbol].digits), w - 55, y + 3);
+            }
+
+            // Draw Candlesticks
+            activeCandles.forEach((c, idx) => {
+                const x = idx * candleWidth + candleWidth / 2;
+                const openY = h - ((c.open - minP) / (maxP - minP)) * h;
+                const closeY = h - ((c.close - minP) / (maxP - minP)) * h;
+                const highY = h - ((c.high - minP) / (maxP - minP)) * h;
+                const lowY = h - ((c.low - minP) / (maxP - minP)) * h;
+
+                const isGreen = c.close >= c.open;
+                const color = isGreen ? '#10b981' : '#ef4444';
+
+                // Wick
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(x, highY);
+                ctx.lineTo(x, lowY);
+                ctx.stroke();
+
+                // Body
+                ctx.fillStyle = color;
+                const bodyY = Math.min(openY, closeY);
+                const bodyH = Math.max(Math.abs(closeY - openY), 2);
+                ctx.fillRect(x - candleWidth * 0.35, bodyY, candleWidth * 0.7, bodyH);
+            });
+
+            // Draw Indicator: SMA (20)
+            if (state.indicators.sma && activeCandles.length >= 20) {
+                ctx.strokeStyle = '#f59e0b';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                for (let i = 19; i < activeCandles.length; i++) {
+                    let sum = 0;
+                    for (let j = i - 19; j <= i; j++) sum += activeCandles[j].close;
+                    let sma = sum / 20;
+                    let x = i * candleWidth + candleWidth / 2;
+                    let y = h - ((sma - minP) / (maxP - minP)) * h;
+                    if (i === 19) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            }
+
+            // Draw Current Price Horizontal Marker Line
+            let lastCandle = activeCandles[activeCandles.length - 1];
+            let currentY = h - ((lastCandle.close - minP) / (maxP - minP)) * h;
+            ctx.strokeStyle = '#3b82f6';
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            ctx.moveTo(0, currentY);
+            ctx.lineTo(w - 60, currentY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Badge for Current Price
+            ctx.fillStyle = '#3b82f6';
+            ctx.fillRect(w - 60, currentY - 10, 60, 20);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 10px monospace';
+            ctx.fillText(lastCandle.close.toFixed(SYMBOLS_DATA[state.selectedSymbol].digits), w - 55, currentY + 3);
+        }
+
+        /* ==========================================================================
+           4. MARKET ENGINE & TICKING SIMULATOR
+           ========================================================================== */
+        function startMarketEngine() {
+            if (priceEngineInterval) clearInterval(priceEngineInterval);
+
+            priceEngineInterval = setInterval(() => {
+                const meta = SYMBOLS_DATA[state.selectedSymbol];
+                let lastCandle = activeCandles[activeCandles.length - 1];
+                
+                // Brownian random walk price fluctuation
+                let delta = (Math.random() - 0.495) * (meta.basePrice * 0.0004);
+                let newClose = lastCandle.close + delta;
+
+                lastCandle.close = newClose;
+                lastCandle.high = Math.max(lastCandle.high, newClose);
+                lastCandle.low = Math.min(lastCandle.low, newClose);
+                lastCandle.volume += 1;
+
+                // Update UI price header display
+                document.getElementById('symbol-bid').textContent = newClose.toFixed(meta.digits);
+                
+                // Recalculate open positions P/L
+                updatePositionsAndAccount();
+
+                // Redraw Chart Canvas
+                drawChart();
+            }, 800);
+        }
+
+        function changeSymbol(sym) {
+            state.selectedSymbol = sym;
+            document.getElementById('order-symbol-label').textContent = sym;
+            activeCandles = generateInitialCandles(sym);
+            drawChart();
+        }
+
+        function setTimeframe(tf) {
+            state.timeframe = tf;
+            document.querySelectorAll('.tf-btn').forEach(btn => {
+                if (btn.getAttribute('data-tf') === tf) {
+                    btn.className = 'tf-btn px-2 py-0.5 rounded bg-blue-600 text-white font-bold';
+                } else {
+                    btn.className = 'tf-btn px-2 py-0.5 rounded text-slate-400 hover:text-white';
+                }
+            });
+            activeCandles = generateInitialCandles(state.selectedSymbol);
+            drawChart();
+        }
+
+        function toggleIndicator(ind) {
+            state.indicators[ind] = !state.indicators[ind];
+            const btn = document.getElementById(`toggle-${ind}`);
+            if (state.indicators[ind]) {
+                btn.className = 'px-2 py-1 rounded bg-blue-600 text-white text-xs border border-blue-500 font-bold';
+            } else {
+                btn.className = 'px-2 py-1 rounded bg-slate-800 text-slate-400 text-xs border border-slate-700 hover:text-white';
+            }
+            drawChart();
+        }
+
+        /* ==========================================================================
+           5. DEMO TRADING ENGINE (POSITIONS, P/L, SL/TP CHECKER)
+           ========================================================================== */
+        function setOrderSide(side) {
+            state.orderSide = side;
+            const btnBuy = document.getElementById('btn-side-buy');
+            const btnSell = document.getElementById('btn-side-sell');
+            const submitBtn = document.getElementById('btn-submit-order');
+
+            if (side === 'BUY') {
+                btnBuy.className = 'py-2.5 rounded-xl font-bold text-sm bg-emerald-600 text-white transition shadow-lg shadow-emerald-900/20 btn-glow-green border border-emerald-400/30';
+                btnSell.className = 'py-2.5 rounded-xl font-bold text-sm bg-slate-800 text-slate-300 hover:text-white border border-slate-700';
+                submitBtn.className = 'w-full py-3 rounded-xl font-bold text-sm bg-emerald-600 hover:bg-emerald-500 text-white transition shadow-lg shadow-emerald-900/30 btn-glow-green';
+            } else {
+                btnBuy.className = 'py-2.5 rounded-xl font-bold text-sm bg-slate-800 text-slate-300 hover:text-white border border-slate-700';
+                btnSell.className = 'py-2.5 rounded-xl font-bold text-sm bg-rose-600 text-white transition shadow-lg shadow-rose-900/20 btn-glow-red border border-rose-400/30';
+                submitBtn.className = 'w-full py-3 rounded-xl font-bold text-sm bg-rose-600 hover:bg-rose-500 text-white transition shadow-lg shadow-rose-900/30 btn-glow-red';
+            }
+        }
+
+        function executeOrder() {
+            const symbol = state.selectedSymbol;
+            const meta = SYMBOLS_DATA[symbol];
+            const volume = parseFloat(document.getElementById('order-volume').value) || 0.10;
+            const leverage = parseFloat(document.getElementById('order-leverage').value) || 100;
+            const currentPrice = activeCandles[activeCandles.length - 1].close;
+            const sl = parseFloat(document.getElementById('order-sl').value) || null;
+            const tp = parseFloat(document.getElementById('order-tp').value) || null;
+
+            const marginNeeded = (volume * meta.contract * currentPrice) / leverage;
+
+            if (marginNeeded > state.balance) {
+                showToast('Недостаточно свободной маржи!', 'error');
+                return;
+            }
+
+            const position = {
+                id: Date.now(),
+                symbol,
+                side: state.orderSide,
+                volume,
+                entryPrice: currentPrice,
+                currentPrice,
+                stopLoss: sl,
+                takeProfit: tp,
+                margin: marginNeeded,
+                openTime: new Date().toLocaleTimeString(),
+                pnl: 0
+            };
+
+            state.positions.push(position);
+            saveState();
+            renderPositions();
+            showToast(`${state.orderSide} ${volume} Lot ${symbol} успешно открыт!`);
+            addXP(25);
+        }
+
+        function closePosition(id, reason = 'Manual Close') {
+            const idx = state.positions.findIndex(p => p.id === id);
+            if (idx === -1) return;
+
+            const pos = state.positions[idx];
+            state.balance += pos.pnl;
+
+            state.history.unshift({
+                ...pos,
+                closePrice: pos.currentPrice,
+                closeTime: new Date().toLocaleTimeString(),
+                reason
+            });
+
+            state.positions.splice(idx, 1);
+            saveState();
+            renderPositions();
+            renderHistory();
+            updatePositionsAndAccount();
+            showToast(`Позиция #${id} закрыта (${reason}). P/L: $${pos.pnl.toFixed(2)}`);
+        }
+
+        function updatePositionsAndAccount() {
+            let totalUnrealizedPnl = 0;
+            let totalMargin = 0;
+
+            state.positions.forEach(pos => {
+                const meta = SYMBOLS_DATA[pos.symbol];
+                const currentPrice = (pos.symbol === state.selectedSymbol)
+                    ? activeCandles[activeCandles.length - 1].close
+                    : pos.currentPrice;
+
+                pos.currentPrice = currentPrice;
+
+                // Calculate P/L
+                if (pos.side === 'BUY') {
+                    pos.pnl = (currentPrice - pos.entryPrice) * pos.volume * meta.contract;
+                } else {
+                    pos.pnl = (pos.entryPrice - currentPrice) * pos.volume * meta.contract;
+                }
+
+                totalUnrealizedPnl += pos.pnl;
+                totalMargin += pos.margin;
+
+                // Automatic Stop Loss / Take Profit Hit Checkers
+                if (pos.stopLoss) {
+                    if (pos.side === 'BUY' && currentPrice <= pos.stopLoss) closePosition(pos.id, 'Stop Loss');
+                    else if (pos.side === 'SELL' && currentPrice >= pos.stopLoss) closePosition(pos.id, 'Stop Loss');
+                }
+                if (pos.takeProfit) {
+                    if (pos.side === 'BUY' && currentPrice >= pos.takeProfit) closePosition(pos.id, 'Take Profit');
+                    else if (pos.side === 'SELL' && currentPrice <= pos.takeProfit) closePosition(pos.id, 'Take Profit');
+                }
+            });
+
+            const equity = state.balance + totalUnrealizedPnl;
+            const freeMargin = equity - totalMargin;
+
+            // Render Header Metrics
+            document.getElementById('hdr-balance').textContent = `$${state.balance.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            document.getElementById('hdr-equity').textContent = `$${equity.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            document.getElementById('hdr-free-margin').textContent = `$${freeMargin.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+
+            const pnlEl = document.getElementById('hdr-pnl');
+            pnlEl.textContent = `$${totalUnrealizedPnl.toFixed(2)}`;
+            pnlEl.className = totalUnrealizedPnl >= 0 ? 'font-bold text-emerald-400' : 'font-bold text-rose-400';
+
+            // Re-render open positions UI elements
+            updatePositionsTableUI();
+            updateProfileStats();
+        }
+
+        function renderPositions() {
+            const tbody = document.getElementById('positions-tbody');
+            if (!tbody) return;
+
+            if (state.positions.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-slate-500" data-i18n="no_positions">Нет открытых позиций</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = state.positions.map(p => {
+                const meta = SYMBOLS_DATA[p.symbol];
+                const isGreen = p.pnl >= 0;
+                return `
+                    <tr class="border-b border-slate-800/40 hover:bg-slate-800/30">
+                        <td class="p-2 font-bold text-white">${p.symbol}</td>
+                        <td class="p-2 font-bold ${p.side === 'BUY' ? 'text-emerald-400' : 'text-rose-400'}">${p.side}</td>
+                        <td class="p-2">${p.volume}</td>
+                        <td class="p-2">${p.entryPrice.toFixed(meta.digits)}</td>
+                        <td class="p-2" id="pos-curr-${p.id}">${p.currentPrice.toFixed(meta.digits)}</td>
+                        <td class="p-2 text-rose-400">${p.stopLoss ? p.stopLoss.toFixed(meta.digits) : '-'}</td>
+                        <td class="p-2 text-emerald-400">${p.takeProfit ? p.takeProfit.toFixed(meta.digits) : '-'}</td>
+                        <td class="p-2 font-bold ${isGreen ? 'text-emerald-400' : 'text-rose-400'}" id="pos-pnl-${p.id}">$${p.pnl.toFixed(2)}</td>
+                        <td class="p-2 text-right">
+                            <button onclick="closePosition(${p.id})" class="px-2 py-1 bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white rounded border border-rose-500/30 transition text-[10px]" data-i18n="close_position">Закрыть</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updatePositionsTableUI() {
+            state.positions.forEach(p => {
+                const meta = SYMBOLS_DATA[p.symbol];
+                const currEl = document.getElementById(`pos-curr-${p.id}`);
+                const pnlEl = document.getElementById(`pos-pnl-${p.id}`);
+                if (currEl) currEl.textContent = p.currentPrice.toFixed(meta.digits);
+                if (pnlEl) {
+                    pnlEl.textContent = `$${p.pnl.toFixed(2)}`;
+                    pnlEl.className = `p-2 font-bold ${p.pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+                }
+            });
+        }
+
+        function renderHistory() {
+            const tbody = document.getElementById('history-tbody');
+            if (!tbody) return;
+
+            if (state.history.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-500" data-i18n="no_history">История сделок пуста</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = state.history.map(h => {
+                const meta = SYMBOLS_DATA[h.symbol];
+                return `
+                    <tr class="border-b border-slate-800/40 text-slate-300">
+                        <td class="p-2 text-slate-500">${h.closeTime}</td>
+                        <td class="p-2 font-bold text-white">${h.symbol}</td>
+                        <td class="p-2 font-bold ${h.side === 'BUY' ? 'text-emerald-400' : 'text-rose-400'}">${h.side}</td>
+                        <td class="p-2">${h.volume}</td>
+                        <td class="p-2">${h.entryPrice.toFixed(meta.digits)}</td>
+                        <td class="p-2">${h.closePrice.toFixed(meta.digits)}</td>
+                        <td class="p-2 font-bold ${h.pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}">$${h.pnl.toFixed(2)}</td>
+                        <td class="p-2 text-slate-400">${h.reason}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        /* ==========================================================================
+           6. MARKETS OVERVIEW TABLE RENDERER
+           ========================================================================== */
+        function renderMarketsTable() {
+            const tbody = document.getElementById('markets-table-body');
+            if (!tbody) return;
+
+            tbody.innerHTML = Object.keys(SYMBOLS_DATA).map(sym => {
+                const meta = SYMBOLS_DATA[sym];
+                const bid = meta.basePrice;
+                const ask = bid + meta.spread;
+                const change = ((Math.random() - 0.48) * 1.5).toFixed(2);
+                const isPos = change >= 0;
+
+                return `
+                    <tr class="hover:bg-slate-800/40 transition cursor-pointer" onclick="changeSymbol('${sym}'); switchTab('terminal');">
+                        <td class="p-4 font-bold text-white flex items-center space-x-2">
+                            <span>${sym}</span>
+                        </td>
+                        <td class="p-4 text-emerald-400">${bid.toFixed(meta.digits)}</td>
+                        <td class="p-4 text-rose-400">${ask.toFixed(meta.digits)}</td>
+                        <td class="p-4 text-slate-400">${(meta.spread * (meta.digits === 5 ? 10000 : 100)).toFixed(1)} pips</td>
+                        <td class="p-4 font-bold ${isPos ? 'text-emerald-400' : 'text-rose-400'}">${isPos ? '+' : ''}${change}%</td>
+                        <td class="p-4 text-right">
+                            <button class="px-3 py-1 bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white rounded-lg text-xs font-bold transition">Торговать</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        /* ==========================================================================
+           7. RISK MANAGER TOOL
+           ========================================================================== */
+        function calculateRiskTool() {
+            const bal = parseFloat(document.getElementById('calc-balance').value) || 10000;
+            const pct = parseFloat(document.getElementById('calc-risk-pct').value) || 1.0;
+            const entry = parseFloat(document.getElementById('calc-entry').value) || 1.0850;
+            const stop = parseFloat(document.getElementById('calc-stop').value) || 1.0820;
+            const tp = parseFloat(document.getElementById('calc-tp').value) || 1.0910;
+
+            const riskAmount = bal * (pct / 100);
+            const stopPips = Math.abs(entry - stop);
+            const rewardPips = Math.abs(tp - entry);
+
+            const lotSize = stopPips > 0 ? (riskAmount / (stopPips * 100000)).toFixed(2) : '0.00';
+            const rewardAmount = (lotSize * rewardPips * 100000).toFixed(2);
+            const rrRatio = stopPips > 0 ? (rewardPips / stopPips).toFixed(1) : '1.0';
+
+            document.getElementById('res-risk-amt').textContent = `$${riskAmount.toFixed(2)}`;
+            document.getElementById('res-lot-size').textContent = `${lotSize} Lot`;
+            document.getElementById('res-reward-amt').textContent = `$${rewardAmount}`;
+            document.getElementById('res-rr-ratio').textContent = `1 : ${rrRatio}`;
+        }
+
+        /* ==========================================================================
+           8. ACADEMY & QUIZ SYSTEM
+           ========================================================================== */
+        const ACADEMY_LESSONS = [
+            {
+                id: 1,
+                title: "1. Основы Трейдинга и Валютный Рынок",
+                desc: "Что такое Форекс, валютные пары, Bid/Ask и Спред.",
+                quiz: [
+                    { q: "Что показывает цена Bid?", options: ["Цену покупки", "Цену продажи", "Разницу спреда"], correct: 1 },
+                    { q: "Что такое спред?", options: ["Разница между Bid и Ask", "Комиссия брокера", "Размер лота"], correct: 0 }
+                ]
+            },
+            {
+                id: 2,
+                title: "2. Японские Свечи и Анализ Графика",
+                desc: "Бычьи и медвежьи свечи, модели Доджи, Молот и Поглощение.",
+                quiz: [
+                    { q: "Зеленая (бычья) свеча означает:", options: ["Падение цены", "Рост цены", "Флэт"], correct: 1 },
+                    { q: "Что такое 'Молот' (Hammer)?", options: ["Сигнал разворота вверх", "Сигнал падения", "Новость"], correct: 0 }
+                ]
+            },
+            {
+                id: 3,
+                title: "3. Риск-Менеджмент и Расчет Лота",
+                desc: "Правило 1%, установка Stop Loss и соотношение Risk/Reward.",
+                quiz: [
+                    { q: "Каким риском на сделку рекомендуют ограничиваться?", options: ["1-2%", "10-20%", "50%"], correct: 0 }
+                ]
+            }
+        ];
+
+        function renderAcademy() {
+            const container = document.getElementById('academy-modules');
+            if (!container) return;
+
+            container.innerHTML = ACADEMY_LESSONS.map(l => `
+                <div class="glass-panel p-5 rounded-2xl flex flex-col justify-between space-y-4">
+                    <div>
+                        <span class="text-[10px] bg-blue-500/20 text-blue-400 font-bold px-2 py-0.5 rounded border border-blue-500/30">МОДУЛЬ ${l.id}</span>
+                        <h3 class="font-bold text-white text-base mt-2">${l.title}</h3>
+                        <p class="text-xs text-slate-400 mt-1">${l.desc}</p>
+                    </div>
+                    <button onclick="startQuiz(${l.id})" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                        <span data-i18n="take_quiz">Пройти тест</span> (+100 XP)
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function startQuiz(id) {
+            addXP(100);
+            showToast('Урок успешно пройден! Начислено +100 XP!');
+        }
+
+        /* ==========================================================================
+           9. TRADING JOURNAL & AI COACH
+           ========================================================================== */
+        function openJournalModal() {
+            document.getElementById('journal-modal').classList.remove('hidden');
+            document.getElementById('journal-modal').classList.add('flex');
+        }
+
+        function closeJournalModal() {
+            document.getElementById('journal-modal').classList.add('hidden');
+            document.getElementById('journal-modal').classList.remove('flex');
+        }
+
+        function saveJournalEntry() {
+            const symbol = document.getElementById('j-symbol').value || 'EUR/USD';
+            const emotion = document.getElementById('j-emotion').value;
+            const notes = document.getElementById('j-notes').value || 'Без заметок';
+
+            state.journal.unshift({
+                id: Date.now(),
+                date: new Date().toLocaleDateString(),
+                symbol,
+                emotion,
+                notes
+            });
+
+            saveState();
+            renderJournal();
+            closeJournalModal();
+            showToast('Запись добавлена в журнал!');
+        }
+
+        function renderJournal() {
+            const list = document.getElementById('journal-list');
+            if (!list) return;
+
+            if (state.journal.length === 0) {
+                list.innerHTML = `<div class="p-8 text-center text-slate-500 text-xs">Журнал пуст. Нажмите "Добавить запись", чтобы зафиксировать эмоции и мысли.</div>`;
+                return;
+            }
+
+            list.innerHTML = state.journal.map(j => `
+                <div class="glass-panel p-4 rounded-xl space-y-2">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="font-bold text-white">${j.symbol}</span>
+                        <span class="text-slate-500">${j.date}</span>
+                    </div>
+                    <div class="text-xs text-blue-400 font-medium">Эмоции: ${j.emotion}</div>
+                    <p class="text-xs text-slate-300 font-mono bg-dark-900/60 p-2 rounded-lg border border-slate-800">${j.notes}</p>
+                </div>
+            `).join('');
+        }
+
+        function sendAiMessage() {
+            const input = document.getElementById('ai-input');
+            const q = input.value.trim();
+            if (!q) return;
+
+            const box = document.getElementById('ai-chat-box');
+
+            // User msg
+            box.innerHTML += `
+                <div class="bg-slate-800 border border-slate-700 p-3 rounded-2xl text-xs text-slate-200 max-w-md ml-auto">
+                    ${q}
+                </div>
+            `;
+
+            input.value = '';
+
+            // AI Reply
+            setTimeout(() => {
+                box.innerHTML += `
+                    <div class="bg-blue-600/10 border border-blue-500/20 p-3 rounded-2xl text-xs text-blue-200 max-w-md">
+                        <i class="fa-solid fa-robot text-blue-400 mr-1"></i>
+                        <b>J-M AI Coach:</b> Отличный вопрос! В трейдинге всегда важно учитывать контекст рынка, уровни поддержки/сопротивления и заранее определенный риск.
+                    </div>
+                `;
+                box.scrollTop = box.scrollHeight;
+            }, 600);
+        }
+
+        /* ==========================================================================
+           10. PROFILE, XP, ACHIEVEMENTS & STATE PERSISTENCE
+           ========================================================================== */
+        function addXP(amount) {
+            state.xp += amount;
+            const level = Math.floor(state.xp / 200) + 1;
+            document.getElementById('user-level-badge').textContent = `Lvl ${level}`;
+            document.getElementById('user-xp-badge').textContent = `${state.xp} XP`;
+            saveState();
+        }
+
+        function updateProfileStats() {
+            document.getElementById('prof-stat-trades').textContent = state.history.length;
+            const wins = state.history.filter(h => h.pnl > 0).length;
+            const wr = state.history.length > 0 ? ((wins / state.history.length) * 100).toFixed(0) : 0;
+            document.getElementById('prof-stat-winrate').textContent = `${wr}%`;
+            
+            const totalPnl = state.history.reduce((a, b) => a + b.pnl, 0);
+            const pnlEl = document.getElementById('prof-stat-pnl');
+            pnlEl.textContent = `$${totalPnl.toFixed(2)}`;
+            pnlEl.className = `text-2xl font-bold font-mono ${totalPnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+
+            document.getElementById('prof-stat-xp').textContent = `${state.xp} XP`;
+        }
+
+        function renderAchievements() {
+            const grid = document.getElementById('achievements-grid');
+            if (!grid) return;
+
+            const items = [
+                { title: 'Первый Шаг', desc: 'Открыть первую демо-сделку', done: state.history.length > 0 || state.positions.length > 0 },
+                { title: 'Мастер Риска', desc: 'Рассчитать позицию в калькуляторе', done: true },
+                { title: 'Студент Академии', desc: 'Заработать 100+ XP', done: state.xp >= 100 }
+            ];
+
+            grid.innerHTML = items.map(a => `
+                <div class="p-3 rounded-xl border ${a.done ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-slate-900 border-slate-800 text-slate-500'} text-xs space-y-1">
+                    <div class="font-bold flex items-center justify-between">
+                        <span>${a.title}</span>
+                        <i class="fa-solid ${a.done ? 'fa-circle-check text-emerald-400' : 'fa-lock'}"></i>
+                    </div>
+                    <p class="text-[11px] opacity-80">${a.desc}</p>
+                </div>
+            `).join('');
+        }
+
+        function resetDemoAccount() {
+            if (confirm(t('reset_confirm'))) {
+                state.balance = 10000.00;
+                state.positions = [];
+                state.history = [];
+                saveState();
+                location.reload();
+            }
+        }
+
+        function saveState() {
+            localStorage.setItem('jm_balance', state.balance);
+            localStorage.setItem('jm_positions', JSON.stringify(state.positions));
+            localStorage.setItem('jm_history', JSON.stringify(state.history));
+            localStorage.setItem('jm_journal', JSON.stringify(state.journal));
+            localStorage.setItem('jm_xp', state.xp);
+        }
+
+        /* ==========================================================================
+           11. NAVIGATION & UI HELPERS
+           ========================================================================== */
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-view').forEach(v => v.classList.add('hidden'));
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-link').forEach(btn => {
+                btn.className = 'nav-link w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all';
+            });
+            const activeNav = document.getElementById(`nav-btn-${tabId}`);
+            if (activeNav) {
+                activeNav.className = 'nav-link w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all bg-blue-600/20 text-blue-400 border border-blue-500/30';
+            }
+
+            if (tabId === 'markets') renderMarketsTable();
+            if (tabId === 'academy') renderAcademy();
+            if (tabId === 'journal') renderJournal();
+            if (tabId === 'profile') { updateProfileStats(); renderAchievements(); }
+            if (tabId === 'terminal') setTimeout(drawChart, 50);
+        }
+
+        function switchTerminalSubTab(sub) {
+            if (sub === 'positions') {
+                document.getElementById('panel-positions').classList.remove('hidden');
+                document.getElementById('panel-history').classList.add('hidden');
+                document.getElementById('tab-btn-positions').className = 'px-4 py-2.5 text-blue-400 border-b-2 border-blue-500 font-bold';
+                document.getElementById('tab-btn-history').className = 'px-4 py-2.5 text-slate-400 hover:text-slate-200';
+            } else {
+                document.getElementById('panel-positions').classList.add('hidden');
+                document.getElementById('panel-history').classList.remove('hidden');
+                document.getElementById('tab-btn-history').className = 'px-4 py-2.5 text-blue-400 border-b-2 border-blue-500 font-bold';
+                document.getElementById('tab-btn-positions').className = 'px-4 py-2.5 text-slate-400 hover:text-slate-200';
+            }
+        }
+
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `p-3 rounded-xl shadow-2xl border text-xs font-medium text-white transition-all transform translate-y-2 opacity-0 flex items-center space-x-2 ${
+                type === 'error' ? 'bg-rose-900/90 border-rose-500/40' : 'bg-slate-800/95 border-blue-500/40'
+            }`;
+            toast.innerHTML = `<i class="fa-solid fa-circle-info text-blue-400"></i><span>${msg}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 10);
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Window resize chart re-fit
+        window.addEventListener('resize', () => { drawChart(); });
+
+        /* Application Entry Point */
+        window.addEventListener('DOMContentLoaded', () => {
+            setLanguage(currentLang);
+            initChart();
+            startMarketEngine();
+            renderPositions();
+            renderHistory();
+            calculateRiskTool();
+            addXP(0);
+        });
+    </script>
+</body>
+</html>
